@@ -49,10 +49,12 @@ def getBookPages(url, url_main):
     return products
     
 
-def getBooks(products, url):
+def getBooks(products, url_main):
     books = []
     for product in products:
-        product_fulladdress = f"{url}{product}"
+        product_split_url = product.split("../../../")
+        product_fulladdress = f"{url_main}catalogue/{product_split_url[1]}"
+        print(product_fulladdress)
         response_book = requests.get(product_fulladdress)
         book_page_soup = BeautifulSoup(response_book.content, "html.parser")
         book_title = book_page_soup.find("h1").get_text()
@@ -62,8 +64,11 @@ def getBooks(products, url):
         price_excl = td[2].get_text()
         available_raw_text = td[5].get_text()
         nb_available = available_raw_text.split("(")[1].split(" ")[0]
-        description_h2 = book_page_soup.find("h2")
-        description_text = description_h2.find_next().get_text()
+        description_div = book_page_soup.find(id="product_description")
+        if description_div:
+            description_text = description_div.find_next("p").get_text()
+        else:
+            description_text = ""
         breadcrumb = book_page_soup.find("ul")
         category = breadcrumb.select("a")[2].get_text()
         review_rating_nb = book_page_soup.select_one("p.star-rating")["class"][1]
@@ -82,7 +87,7 @@ def getBooks(products, url):
                 review_rating_nb = "error"
         review_rating = f"{review_rating_nb}/5"
         image_url = book_page_soup.find("img")["src"].split("media")[1]
-        image_url = f"{url}media{image_url}"
+        image_url = f"{url_main}media{image_url}"
         book = []
         book.append(product_fulladdress)
         book.append(book_upc)
@@ -98,26 +103,25 @@ def getBooks(products, url):
     return(books)
 
 def write_csv(books):
-    with open("books.csv", "w") as file_csv:
+    with open("books.csv", "w", encoding="utf-8") as file_csv:
         writer = csv.writer(file_csv, delimiter=",")
         en_tete = ["product_page_url","universal_product_code","title","price_including_tax","price_excluding_tax","number_available","product_description","category","review_rating","image_url"]
         writer.writerow(en_tete)
         for book in books:
-            writer.writerow(book)
+            for one_book in book:
+                writer.writerow(one_book)
 
 def main():
     url_main = "https://books.toscrape.com/"
     category_pages = getCategoryPages(url_main)
-    all_book_pages = []
+    all_site_pages = []
     for category_page in category_pages:
         lists_books_per_page = getBookPages(category_page, url_main)
-        for list_books_per_page in lists_books_per_page:
-            all_book_pages.append(list_books_per_page)
-    print(len(all_book_pages))
-
-    #url = "https://books.toscrape.com/catalogue/category/books/historical-fiction_4/index.html"
-    #print(len(products))
-    #books = getBooks(products, url)
-    #write_csv(books)
+        all_site_pages.append(lists_books_per_page)
+    books = []
+    for site_page in all_site_pages:
+        new_books = getBooks(site_page, url_main)
+        books.append(new_books)
+    write_csv(books)
 
 main()
