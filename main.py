@@ -28,7 +28,7 @@ def getBookPages(url, url_main):
             products_html = soup.select("article.product_pod")
             for product_html in products_html:
                 title_h3 = product_html.find("h3")
-                title_html = title_h3.findChildren("a")
+                title_html = title_h3.find_all("a")
                 href = title_html[0]["href"]
                 products.append(href)
             next_page_link = next_page_link_li[0].find_all("a")
@@ -43,7 +43,7 @@ def getBookPages(url, url_main):
     products_html = soup.select("article.product_pod")
     for product_html in products_html:
         title_h3 = product_html.find("h3")
-        title_html = title_h3.findChildren("a")
+        title_html = title_h3.find_all("a")
         href = title_html[0]["href"]
         products.append(href)
     return products
@@ -61,7 +61,9 @@ def getBooks(products, url_main):
         td = book_page_soup.select("td")
         book_upc = td[0].get_text()
         price_incl = td[3].get_text()
+        price_incl_number = price_incl.split("£")[1]
         price_excl = td[2].get_text()
+        price_excl_number = price_excl.split("£")[1]
         available_raw_text = td[5].get_text()
         nb_available = available_raw_text.split("(")[1].split(" ")[0]
         description_div = book_page_soup.find(id="product_description")
@@ -92,8 +94,8 @@ def getBooks(products, url_main):
         book.append(product_fulladdress)
         book.append(book_upc)
         book.append(book_title)
-        book.append(price_incl)
-        book.append(price_excl)
+        book.append(price_incl_number)
+        book.append(price_excl_number)
         book.append(nb_available)
         book.append(description_text)
         book.append(category)
@@ -103,7 +105,7 @@ def getBooks(products, url_main):
     return(books)
 
 def write_csv(books):
-    with open("books.csv", "w", encoding="utf-8") as file_csv:
+    with open("books.csv", "w", encoding="utf-8", newline="") as file_csv:
         writer = csv.writer(file_csv, delimiter=",")
         en_tete = ["product_page_url","universal_product_code","title","price_including_tax","price_excluding_tax","number_available","product_description","category","review_rating","image_url"]
         writer.writerow(en_tete)
