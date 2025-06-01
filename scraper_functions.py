@@ -129,7 +129,8 @@ def getBooks(products, url_main, folder_name):
 def write_csv(books):
     with open("books.csv", "w", encoding="utf-8", newline="") as file_csv:
         writer = csv.writer(file_csv, delimiter=",")
-        en_tete = ["product_page_url","universal_product_code","title","price_including_tax","price_excluding_tax","number_available","product_description","category","review_rating","image_url"]
+        en_tete = ["product_page_url","universal_product_code","title","price_including_tax","price_excluding_tax","number_available",
+                   "product_description","category","review_rating","image_url"]
         writer.writerow(en_tete)
         for book in books:
             for one_book in book:
