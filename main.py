@@ -9,7 +9,7 @@ def main():
     print("Category pages recuperated")
     all_site_pages = []
     for category_page in category_pages:
-        lists_books_per_page = scraper_functions.getBookPages(category_page, url_main)
+        lists_books_per_page = scraper_functions.getBookPages(category_page)
         all_site_pages.append(lists_books_per_page)
     books = []
     print("All pages recuperated")

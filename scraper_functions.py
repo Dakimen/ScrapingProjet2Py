@@ -19,7 +19,7 @@ def getCategoryPages(url):
         category_pages.append(f"{url}{category_page}")
     return category_pages
 
-def getBookPages(url, url_main):
+def getBookPages(url):
     response = requests.get(url)
     html = response.content
     soup = BeautifulSoup(html, "html.parser")
